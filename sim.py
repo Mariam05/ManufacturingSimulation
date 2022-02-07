@@ -1,7 +1,7 @@
 import queue
 from random import randint
 
-from numpy import full
+#from numpy import full
 from servicetime_util import ServiceTimes # to use to get the next service time. 
 import logging
 from util import *
@@ -21,7 +21,7 @@ class Sim():
         self.maxBufferSize = 2
 
         # a dictionary to determine whether a workstation is idle 
-        self.workstations_idle = {1: False, 2: False, 3: False}
+        self.workstations_idle = {1: True, 2: True, 3: True}
 
         self.inspector_blocked = {1: False, 2: False}
 
@@ -37,12 +37,10 @@ class Sim():
         self._arrival = 1
         self._departure = 2
 
-
     def scheduleArrival(self, inspector_id):
         """ create arrival event to buffer """ 
         
         logging.info("Scheduling arrival for inspector %d", inspector_id)
-
         if inspector_id == 1 and not self.inspector_blocked[1]:
             comp_id = 1
             arrivalTime = self.Clock + self.service_time.get_C1_service_time()
@@ -97,7 +95,6 @@ class Sim():
 
     def check_buffer_capacities(self):
         ''' Check buffers for each component. If all the buffers for one component are full, then block that inspector. '''
-        
         for comp_id in self.buffers:
             all_full = True
             buffers = self.buffers.get(comp_id)
@@ -182,21 +179,22 @@ sim = Sim()
 """ schedule first arrival for inspector 1. event is identified by a tuple (time, type, queue ID, Component)"""
 """ Inspector 1 = 1, inspector2 = 2"""
 sim.scheduleArrival(1)
-# sim.scheduleArrival(2)
+#sim.scheduleArrival(2)
 
-while not sim._FutureEventList.empty():
+while True:
     print("FEL: ", sim._FutureEventList.queue)
-    evt = sim._FutureEventList.get()
+    if( not sim._FutureEventList.empty() ):
+        evt = sim._FutureEventList.get()
 
-    sim.Clock = evt[0]
+        sim.Clock = evt[0]
 
-    logging.info("event being processed: %s", str(evt))
-    logging.info("time is: %f", sim.Clock)
+        logging.info("event being processed: %s", str(evt))
+        logging.info("time is: %f", sim.Clock)
 
-    target_workstation = evt[2]
-    comp_type = evt[3]
+        target_workstation = evt[2]
+        comp_type = evt[3]
 
-    """ check event type"""
+        """check event type"""
     if (evt[1] == sim._arrival): # arrival to buffer 
         sim.processArrival(target_workstation, comp_type)
     elif (evt[1] == sim._departure): #departure from workstation
