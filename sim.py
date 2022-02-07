@@ -1,5 +1,6 @@
 import queue
 from random import randint
+import sys
 
 #from numpy import full
 from servicetime_util import ServiceTimes # to use to get the next service time. 
@@ -31,28 +32,49 @@ class Sim():
 
         self._FutureEventList = queue.PriorityQueue()
 
-        self.end = False # indicate whether the simulation has ended. 
+        self.c1_end = False
+        self.c2_end = False
+        self.c3_end = False
+        self.w1_end = False
+        self.w2_end = False
+        self.w3_end = False
+
+        self.end = self.c1_end and self.c2_end and self.c2_end and self.w1_end and self.w2_end and self.w3_end # indicate whether the simulation has ended. 
+
         self.service_time = ServiceTimes() # can be used to get the next service time for each inspector & workstation.
 
         self._arrival = 1
         self._departure = 2
 
+        self.components_inspected = 0
+        self.components_consumed = 0
+
+        self.products_scheduled = 0
+
+
     def scheduleArrival(self, inspector_id):
         """ create arrival event to buffer """ 
         
         logging.info("Scheduling arrival for inspector %d", inspector_id)
+
+        arrivalTime = None
         if inspector_id == 1 and not self.inspector_blocked[1]:
             comp_id = 1
-            arrivalTime = self.Clock + self.service_time.get_C1_service_time()
+            arrivalTime = self.service_time.get_C1_service_time()
         elif inspector_id == 2 and not self.inspector_blocked[2]:
             comp_id = randint(2,3)
             if (comp_id == 2):
-                arrivalTime = self.Clock + self.service_time.get_C2_service_time()
+                arrivalTime = self.service_time.get_C2_service_time()      
             else:
-                arrivalTime = self.Clock + self.service_time.get_C3_service_time()
-        else:
+                arrivalTime = self.service_time.get_C3_service_time()             
+        
+        if arrivalTime == None:
             return
-       
+
+        arrivalTime += self.Clock
+
+        self.components_inspected += 1
+
         target_wst = self.determine_target(comp_id)
         evt = (arrivalTime, self._arrival, target_wst, comp_id)
 
@@ -89,7 +111,10 @@ class Sim():
 
         # check the status of the buffers and block / unblock inspectors as necessary/
         self.check_buffer_capacities()
+
+        insp = self.inspector_responsibilities[comp_id]
         
+        # if not self.inspector_blocked[insp]:
         self.scheduleArrival(self.inspector_responsibilities[comp_id])
 
 
@@ -120,11 +145,14 @@ class Sim():
 
         if workstation_id == 1:
             self.buffers.get(1)[1] -= 1 # decrease number of components in buffer 1, wst 1
+            
             dept_time = self.Clock + self.service_time.get_W1_service_time()
+            
         elif workstation_id == 2:
             self.buffers.get(1)[2] -= 1
             self.buffers.get(2)[2] -= 1
             dept_time = self.Clock + self.service_time.get_W2_service_time()
+            
         else: 
             self.buffers.get(1)[3] -= 1
             self.buffers.get(3)[3] -= 1
@@ -133,6 +161,7 @@ class Sim():
         evt = (dept_time, self._departure, workstation_id, None)
 
         self._FutureEventList.put(evt)
+        self.products_scheduled += 1
         print("added departure event to FEL: ", evt)
 
 
@@ -163,14 +192,13 @@ class Sim():
 
         # update workstation to idle
         self.workstations_idle[workstation_id] = True
-        logging.info("Scheduling departure of product from workstation")
+        logging.info("Product is departing from workstation %d", workstation_id)
 
-
-
-        # check if it can create another product. 
-
-        
-        """ if there are still Components in queue, schedule next departure"""    
+        if (workstation_id == 1):
+            self.components_consumed += 1
+        else:
+            self.components_consumed += 2
+          
 
 
 logging_setup()
@@ -178,10 +206,15 @@ sim = Sim()
 
 """ schedule first arrival for inspector 1. event is identified by a tuple (time, type, queue ID, Component)"""
 """ Inspector 1 = 1, inspector2 = 2"""
+
 sim.scheduleArrival(1)
+
 #sim.scheduleArrival(2)
 
-while True:
+i = 0
+while sim.components_inspected >= sim.components_consumed :
+    print(i)
+    i += 1
     print("FEL: ", sim._FutureEventList.queue)
     if( not sim._FutureEventList.empty() ):
         evt = sim._FutureEventList.get()
@@ -194,11 +227,12 @@ while True:
         target_workstation = evt[2]
         comp_type = evt[3]
 
-        """check event type"""
+    """check event type"""
     if (evt[1] == sim._arrival): # arrival to buffer 
         sim.processArrival(target_workstation, comp_type)
     elif (evt[1] == sim._departure): #departure from workstation
         sim.processDeparture(target_workstation)
 
-logging.info("Future event list is empty")
 
+print("Total components inspected = ", sim.components_inspected)
+print("Total products scheduled = ", sim.products_scheduled)

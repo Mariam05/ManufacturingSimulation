@@ -23,7 +23,11 @@ class ServiceTimes():
 
     def get_C1_service_time(self):
         ''' Read the next value in the file for C1 service times by Inspector 2 '''
-        return next(self.__c1Generator)
+        try:
+            nxt = next(self.__c1Generator)
+        except Exception:
+            nxt = None
+        return nxt
 
     def get_C2_service_time(self):
         ''' Read the next value in the file for C2 service times by Inspector 2 '''
