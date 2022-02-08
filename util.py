@@ -10,3 +10,6 @@ def logging_setup():
     logging.basicConfig(format=format, level=logging.INFO,
                             datefmt="%H:%M:%S")
     logging.getLogger().setLevel(logging.INFO)
+
+arrival = 1
+departure = 2
