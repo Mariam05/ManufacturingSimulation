@@ -61,7 +61,7 @@ class Sim():
         if inspector_id == 1:
             comp_id = 1
             arrivalTime = self.service_time.get_C1_service_time()
-        elif inspector_id == 2 and not self.inspector_blocked[2]:
+        elif inspector_id == 2:
             comp_id = randint(2,3)
             if (comp_id == 2):
                 arrivalTime = self.service_time.get_C2_service_time()      
@@ -69,7 +69,6 @@ class Sim():
                 arrivalTime = self.service_time.get_C3_service_time()             
         
         if arrivalTime == None:
-            self.num_skipped += 1
             return
 
         arrivalTime += self.Clock
@@ -85,18 +84,22 @@ class Sim():
     def block_inspector(self, insp_id) -> bool:
         if not self.inspector_idle.get(insp_id):
             return True
-
-        insp_comps = self.insp_comps.get(insp_id) # get the list of components that the inspector is responsible for
-        print(f"inspector {insp_id} is responsible for {insp_comps}")
-        for comp in insp_comps:
-            buffers = self.buffers.get(comp)
-            print(f"buffers in comp {comp} are: {buffers}")
-            for elem in list(buffers.values()):
-                print(f"elem = {elem}")
-                if elem < 2:
-                    return False
         
-        return True
+        insp_comps = self.insp_comps.get(insp_id) # get the list of components that the inspector is responsible for
+        if insp_id == 1:        
+            for comp in insp_comps:
+                buffers = self.buffers.get(comp)
+                for elem in list(buffers.values()):
+                    if elem < 2:
+                        return False
+            return True
+        else:
+            for comp in insp_comps:
+                buffers = self.buffers.get(comp)
+                for elem in list(buffers.values()):
+                    if elem >= 2:
+                        return True
+            return False
 
 
     def determine_target(self, comp_id: int):
@@ -120,6 +123,8 @@ class Sim():
 
         if (comp_id == 1):
             self.inspector_idle[1] = True
+        else:
+            self.inspector_idle[2] = True
 
         # determine which buffer to put it in. target_buffer actually has which workstation to put it in
         target_buffer = self.determine_target(comp_id) 
@@ -155,7 +160,6 @@ class Sim():
 
         self._FutureEventList.put(evt)
         self.products_scheduled += 1
-        print("added departure event to FEL: ", evt)
 
 
     def check_workstation_available(self, workstation_id: int) -> bool:
@@ -169,8 +173,8 @@ class Sim():
             logging.info("Workstation 1 is available")
             return True
         elif workstation_id == 2 and self.buffers.get(1).get(2) > 0 and self.buffers.get(2).get(2) > 0:
-                logging.info("Workstation 2 is available")
-                return True
+            logging.info("Workstation 2 is available")
+            return True
         elif workstation_id == 3 and self.buffers.get(1).get(3) > 0 and self.buffers.get(3).get(3) > 0:
             logging.info("Workstation 3 is available")
             return True
@@ -195,15 +199,11 @@ class Sim():
 logging_setup()
 sim = Sim()
 
-""" schedule first arrival for inspector 1. event is identified by a tuple (time, type, queue ID, Component)"""
-""" Inspector 1 = 1, inspector2 = 2"""
-
 sim.scheduleArrival(1)
-
-#sim.scheduleArrival(2)
+sim.scheduleArrival(2)
 
 i = 0
-while sim.components_inspected >= sim.components_consumed :
+while sim.components_inspected > sim.components_consumed :
     print(i)
     i += 1
     print("FEL: ", sim._FutureEventList.queue)
@@ -212,11 +212,6 @@ while sim.components_inspected >= sim.components_consumed :
     for w_id in range(1,4):
         if sim.check_workstation_available(w_id):
             sim.schedule_departure(w_id)
-
-    
-    if sim.buffers.get(1).get(2) > 2 or sim.buffers.get(1).get(3) > 2:
-        print("exceeding buffer size")
-        break
 
     if not sim._FutureEventList.empty():
         evt = sim._FutureEventList.get()
@@ -236,8 +231,10 @@ while sim.components_inspected >= sim.components_consumed :
    
     
     if not sim.block_inspector(1):
-        print("inspector not blocked")
-        sim.scheduleArrival(1)  
+        sim.scheduleArrival(1)
+
+    if not sim.block_inspector(2):
+        sim.scheduleArrival(2)
 
     # """check event type"""
     print("Total components inspected = ", sim.components_inspected)
