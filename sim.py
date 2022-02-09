@@ -9,19 +9,17 @@ from util import *
 
 from workstation import Workstation
 from buffer import Buffer
-from component import *
 from inspector import *
 
 
 '''
-Format of events is (time, type (arrival vs departure), target workstation, component_type)
+Format of events is (time, type (arrival vs departure), target workstation, component_type, inspector_id)
 '''
 
 class Sim():
-    def __init__(self, inspectors: Dict[int, Inspector], workstations: Dict[int, Workstation], components: Dict[int, Component]):
+    def __init__(self, inspectors: Dict[int, Inspector], workstations: Dict[int, Workstation]):
         self.inspectors = inspectors
         self.workstations = workstations
-        self.components = components
 
         self.Clock = 0.0
 
@@ -42,26 +40,21 @@ class Sim():
         inspector.idle = False
         evt = inspector.create_arrival_event(self.Clock)
 
-        self.components_inspected += 1
-
-        self._FutureEventList.put(evt)
-        print("added event to FEL: ", evt)
+        if not evt == None:
+            self.components_inspected += 1
+            self._FutureEventList.put(evt)
+            print("added event to FEL: ", evt)
 
 
     def processArrival(self, evt: tuple):
         ''' When a component arrives to a buffer. '''
 
-        comp_id = evt[3]
-        comp = self.components.get(comp_id)
-        buffer_entered = comp.enter_buffer()
-
         insp_id = evt[4]
         insp = self.inspectors.get(insp_id)
 
-        # insp = evt[4] # the inspector
-        insp.idle = True
+        insp.add_to_buffer()
         
-        logging.info("processing arrival to buffer in workstation %d", buffer_entered.wst_id)
+        logging.info("processing arrival to buffer in workstation ")
 
   
     def schedule_departure(self, workstation: Workstation):
@@ -74,21 +67,13 @@ class Sim():
       
         self._FutureEventList.put(evt)
 
-
-
     def processDeparture(self, evt: tuple):
         ''' Departure from the workstation'''
 
-
         workstation_id = evt[2]
-        print("evt = ", evt)
-        print("")
+       
         workstation = self.workstations.get(workstation_id)
-        # update workstation to idle
-        # 
-        # workstation = evt[2]
-        # print("evt[2] = ", workstation)
-        # workstation_id = workstation.id    
+      
         workstation.process_departure()
         logging.info("Product is departing from workstation %d", workstation_id)
 
@@ -108,13 +93,8 @@ buffer13 = Buffer(1, 3)
 buffer22 = Buffer(2, 2)
 buffer33 = Buffer(3, 3)
 
-c1 = Component(1, "data/servinsp1.dat", [buffer11, buffer12, buffer13])
-c2 = Component(1, "data/servinsp22.dat", [buffer22])
-c3 = Component(1, "data/servinsp23.dat", [buffer33])
-
-
-insp1 = Inspector(id=1, components=[c1])
-insp2 = Inspector(id =1, components=[c2, c3])
+insp1 = Inspector1(buffers=[buffer11, buffer12, buffer13])
+insp2 = Inspector2(buffers=[buffer22, buffer33])
 
 w1 = Workstation(1, [buffer11], "data/ws1.dat")
 w2 = Workstation(1, [buffer12, buffer22], "data/ws2.dat")
@@ -123,20 +103,22 @@ w3 = Workstation(1, [buffer13, buffer33], "data/ws3.dat")
 workstations = [w1, w2, w3]
 
 sim = Sim(inspectors={1: insp1, 2: insp2}, 
-            workstations={1: w1, 2: w2, 3: w3},
-            components={1: c1, 2: c2, 3: c3})
+            workstations={1: w1, 2: w2, 3: w3})
 
 sim.scheduleArrival(insp1)
-# sim.scheduleArrival(2)
+sim.scheduleArrival(insp2)
 
 i = 0
-while True :
+end = False
+while not end :
     print(i)
     i += 1
-    # print("FEL: ", sim._FutureEventList.queue)
+    print("FEL: ", sim._FutureEventList.queue)
+    print(f"buffers: \n \t  W1B1: {buffer11.size} , W2B1: {buffer12.size}, W2B2: {buffer22.size}, W3B1: {buffer13.size}, W3B3: {buffer33.size} ")
 
     for wst in workstations:
-        sim.schedule_departure(wst)
+        if wst.is_available():
+            sim.schedule_departure(wst)
 
     if not sim._FutureEventList.empty():
         evt = sim._FutureEventList.get()
@@ -155,14 +137,11 @@ while True :
     if not insp1.is_blocked():
         sim.scheduleArrival(insp1)
 
-    # if not sim.block_inspector(2):
-    #     sim.scheduleArrival(2)
+    if not insp2.is_blocked():
+        sim.scheduleArrival(insp2)
 
-    # """check event type"""
+    end = (insp1.done and insp2.done) or (insp1.done and insp2.is_blocked()) or (insp2.done and insp1.is_blocked())
     print("Total components inspected = ", sim.components_inspected)
     print("Total components consumed = ", sim.components_consumed)
 
 
-print("Total components inspected = ", sim.components_inspected)
-print("Total products scheduled = ", sim.products_scheduled)
-print("Num Skipped = ", sim.num_skipped)

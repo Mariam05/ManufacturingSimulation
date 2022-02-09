@@ -24,14 +24,13 @@ class Workstation():
         buffer_occupied = [not b.is_empty() for b in self.buffers]
         return all(buffer_occupied) and self.idle
 
-    def schedule_departure(self, clock):
-        if self.is_available:
-            self.idle = False
-            dept_time = clock + self.get_next_service_time()
-            for buffer in self.buffers:
-                buffer.remove_from_buffer()
-            evt = (dept_time, departure, self.id, None, None)
-            return evt
+    def schedule_departure(self, clock):  
+        self.idle = False
+        dept_time = clock + self.get_next_service_time()
+        for buffer in self.buffers:
+            buffer.remove_from_buffer()
+        evt = (dept_time, departure, self.id, None, None)
+        return evt
 
     def process_departure(self):
         self.idle = True
