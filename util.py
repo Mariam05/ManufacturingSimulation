@@ -1,5 +1,5 @@
 '''
-This file has general utility functions 
+This file has shared variables and general utility functions 
 that execute general logic shared by multiple classes or files
 '''
 import logging
