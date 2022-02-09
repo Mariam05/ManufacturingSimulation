@@ -1,5 +1,4 @@
 from buffer import Buffer
-from sim import Event
 from typing import List
 from util import *
 
@@ -31,7 +30,7 @@ class Workstation():
             dept_time = clock + self.get_next_service_time()
             for buffer in self.buffers:
                 buffer.remove_from_buffer()
-            evt = Event(dept_time, departure, self, None, None)
+            evt = (dept_time, departure, self.id, None, None)
             return evt
 
     def process_departure(self):
