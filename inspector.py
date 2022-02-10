@@ -8,45 +8,54 @@ class Inspector():
         self.id = id
         self.idle = True # is it inspecting a component
         self.buffers = buffers
-        self.done = False
+        self.done = False # indicates whether the inspector finished inspecting all components (used only for this iteration)
     
     def determine_target(self) -> Buffer:
-        self.buffers.sort(key= lambda b: (b.size, b.wst_id))
-        return self.buffers[0] # first tuple in list, first element in tuple = workstation id
+        ''' Determine which buffer to add the component to '''
+
+        # sort the buffers list first by the size of the buffer and then by the workstation id
+        self.buffers.sort(key= lambda b: (b.size, b.wst_id))  
+        return self.buffers[0] # return the first buffer in list (highest priority)
     
     def add_to_buffer(self):
-        self.idle = True
-        target_buffer = self.determine_target()
-        target_buffer.add_to_buffer()
+        ''' Finish inspecting a component, add it to a bugger '''
+        self.idle = True # set self to idle, so that it can start processing another component
+        target_buffer = self.determine_target() # determine which buffer to place the component in
+        target_buffer.add_to_buffer() # add the component to that buffer
 
 class Inspector1(Inspector):
     def __init__(self, buffers: List[Buffer]):
         Inspector.__init__(self,1, buffers)
         self.__c1Filename = "data/servinsp1.dat"
-        self.__c1Generator = (float(row.rstrip()) for row in open(self.__c1Filename))
+        self.__c1Generator = (float(row.rstrip()) for row in open(self.__c1Filename)) # a generator to read the service times
 
     def get_next_service_time(self):
         ''' Read the next value in the file for C1 service times by Inspector 2 '''
         try:
             nxt = next(self.__c1Generator)
-        except Exception:
+        except Exception: # an exception is thrown after the last service time is read
             nxt = None
             self.done = True
         return nxt
 
     def create_arrival_event(self, clock):
+        ''' Creates an event tuple that indicates what component the inspector is inspecting and 
+        when the inspector will finish inspecting it. (ie. when it will arrive to a buffer). 
+        The clock parameter is the current simulation time. '''
         insp_time = self.get_next_service_time()
         if (insp_time == None):
             self.blocked = True
             return
         return (insp_time + clock, arrival, None, 1, self.id)
 
-    def is_blocked(self):
-        if not self.idle:
+    def is_blocked(self) -> bool:
+        ''' Determine whether or not the inspector can start processing another component. 
+        An inspector can't process another component if it's blocked or busy'''
+        if not self.idle: # if it's currently processing a component, then return True 
             return True
 
         for buffer in self.buffers:
-            if not buffer.is_full():
+            if not buffer.is_full(): # if there's space in a target buffer, return false
                 return False
         return True
 
@@ -78,7 +87,10 @@ class Inspector2(Inspector):
         return nxt
 
     def create_arrival_event(self, clock):
-        chosen_comp = randint(2, 3)
+        ''' Creates an event tuple that indicates what component the inspector is inspecting and 
+        when the inspector will finish inspecting it. (ie. when it will arrive to a buffer). 
+        The clock parameter is the current simulation time. '''
+        chosen_comp = randint(2, 3) # randomly determine whether the inspector will inspect C1 or C2
         if chosen_comp == 2:
             insp_time = self.get_next_C2_service_time()
         else:
@@ -90,6 +102,8 @@ class Inspector2(Inspector):
         return (insp_time + clock, arrival, None, 1, self.id)
 
     def is_blocked(self) -> bool:
+        ''' Determine whether or not the inspector can start processing another component.
+         An inspector can't process another component if it's blocked or busy '''
         if not self.idle:
             return True
         for buffer in self.buffers:
