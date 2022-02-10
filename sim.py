@@ -1,9 +1,6 @@
-import inspect
 import queue
-from random import randint
 from typing import Dict, List
 
-from servicetime_util import ServiceTimes # to use to get the next service time. 
 import logging
 from util import *
 
@@ -17,6 +14,10 @@ Format of events is (time, type (arrival vs departure), target workstation, comp
 '''
 
 class Sim():
+    '''
+    The simulation class to coordinate the arrival and departure of components from the different entities.
+    '''
+
     def __init__(self, inspectors: Dict[int, Inspector], workstations: Dict[int, Workstation]):
         self.inspectors = inspectors
         self.workstations = workstations
@@ -25,11 +26,10 @@ class Sim():
 
         self._FutureEventList = queue.PriorityQueue()
 
+        # variables to hold operation statistics
         self.components_inspected = 0
         self.components_consumed = 0
-
         self.products_scheduled = 0
-        self.num_skipped = 0
 
 
     def scheduleArrival(self, inspector: Inspector):
@@ -68,7 +68,7 @@ class Sim():
         self._FutureEventList.put(evt)
 
     def processDeparture(self, evt: tuple):
-        ''' Departure from the workstation'''
+        ''' Process a departure from the workstation'''
 
         workstation_id = evt[2]
        
@@ -84,9 +84,10 @@ class Sim():
          
 
 
+# setup a custom logging format
 logging_setup()
 
-
+# initialize all components
 buffer11 = Buffer(1, 1)
 buffer12 = Buffer(1, 2)
 buffer13 = Buffer(1, 3)
@@ -105,6 +106,7 @@ workstations = [w1, w2, w3]
 sim = Sim(inspectors={1: insp1, 2: insp2}, 
             workstations={1: w1, 2: w2, 3: w3})
 
+# start the inspectors
 sim.scheduleArrival(insp1)
 sim.scheduleArrival(insp2)
 
@@ -116,10 +118,12 @@ while not end :
     print("FEL: ", sim._FutureEventList.queue)
     print(f"buffers: \n \t  W1B1: {buffer11.size} , W2B1: {buffer12.size}, W2B2: {buffer22.size}, W3B1: {buffer13.size}, W3B3: {buffer33.size} ")
 
+    # for each workstation, check if it can start processing a product
     for wst in workstations:
         if wst.is_available():
             sim.schedule_departure(wst)
 
+    # process the next event in the FEL
     if not sim._FutureEventList.empty():
         evt = sim._FutureEventList.get()
 
@@ -133,13 +137,14 @@ while not end :
         elif (evt[1] == departure): # departure from workstation
             sim.processDeparture(evt)
    
-    
+    # schedule the next arrival of a component to the buffer if the inspector isn't blocked
     if not insp1.is_blocked():
         sim.scheduleArrival(insp1)
 
     if not insp2.is_blocked():
         sim.scheduleArrival(insp2)
 
+    # the simulation ends if either both inspectors are done, or one is done and the other is blocked
     end = (insp1.done and insp2.done) or (insp1.done and insp2.is_blocked()) or (insp2.done and insp1.is_blocked())
     print("Total components inspected = ", sim.components_inspected)
     print("Total components consumed = ", sim.components_consumed)
