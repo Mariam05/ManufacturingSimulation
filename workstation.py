@@ -37,3 +37,5 @@ class Workstation():
         ''' Handles a product leaving the workstation'''
         self.idle = True
         
+
+# (total time - total time not idle) / total time = ratio of idle time
