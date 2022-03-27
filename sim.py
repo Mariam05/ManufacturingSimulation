@@ -30,6 +30,10 @@ class Sim():
         self.components_inspected = 0
         self.components_consumed = 0
         self.products_produced = 0
+        self.product1_produced=0; 
+        self.product2_produced=0; 
+        self.product3_produced=0; 
+
 
         self.total_comp_in_buffers = 0
 
@@ -81,8 +85,13 @@ class Sim():
 
         self.products_produced += 1
         if (workstation_id == 1):
+            self.product1_produced+=1 
             self.components_consumed += 1
+        elif (workstation_id == 2):
+            self.product2_produced+=1
+            self.components_consumed += 2
         else:
+            self.product3_produced+=1
             self.components_consumed += 2
          
     def check_buffer_sizes(self):
@@ -169,4 +178,17 @@ while not end :
     print("Average buffer capacity = ", sim.total_comp_in_buffers / num_of_events /5 )
     print("products produced: ", sim.products_produced )
     print("Average product throughput = ", sim.products_produced / sim.Clock )
+    print("product 1 produced: ", sim.product1_produced )
+    print("Average product 1 throughput = ", sim.product1_produced / sim.Clock )
+    print("product 2 produced: ", sim.product2_produced )
+    print("Average product 2 throughput = ", sim.product2_produced / sim.Clock )
+    print("product 3 produced: ", sim.product3_produced )
+    print("Average product 3 throughput = ", sim.product3_produced / sim.Clock )
+    print("Workstation 1 proportion of time busy: ", sim.workstations.get(1).get_proportion_idle_time(sim.Clock) )
+    print("Workstation 2 proportion of time busy: ", sim.workstations.get(2).get_proportion_idle_time(sim.Clock) )
+    print("Workstation 3 proportion of time busy: ", sim.workstations.get(3).get_proportion_idle_time(sim.Clock) )
+
+
+
+
 

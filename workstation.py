@@ -27,7 +27,9 @@ class Workstation():
     def schedule_departure(self, clock):  
         ''' Remove components from the buffer and schedule the departure of a product from the workstation '''
         self.idle = False # if a departure is being scheduled, then the workstation is busy
-        dept_time = clock + self.get_next_service_time()
+        nxt = self.get_next_service_time()
+        self.processing_time.append(nxt)
+        dept_time = clock + nxt
         for buffer in self.buffers:
             buffer.remove_from_buffer() # remove the components from the buffer
         evt = (dept_time, departure, self.id, None, None)
@@ -36,6 +38,15 @@ class Workstation():
     def process_departure(self):
         ''' Handles a product leaving the workstation'''
         self.idle = True
+
+    def get_proportion_idle_time(self, clock):
+        ''' Calculates the total idle time of the workstation '''
+        service_time = 0; 
+        for t in self.processing_time:
+            service_time+=1
+        idle_time = service_time/clock 
+        return idle_time
+
         
 
 # (total time - total time not idle) / total time = ratio of idle time
