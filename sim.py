@@ -29,7 +29,9 @@ class Sim():
         # variables to hold operation statistics
         self.components_inspected = 0
         self.components_consumed = 0
-        self.products_scheduled = 0
+        self.products_produced = 0
+
+        self.total_comp_in_buffers = 0
 
 
     def scheduleArrival(self, inspector: Inspector):
@@ -77,11 +79,15 @@ class Sim():
         workstation.process_departure()
         logging.info("Product is departing from workstation %d", workstation_id)
 
+        self.products_produced += 1
         if (workstation_id == 1):
             self.components_consumed += 1
         else:
             self.components_consumed += 2
          
+    def check_buffer_sizes(self):
+        for buffer in all_buffers:
+            self.total_comp_in_buffers += buffer.size
 
 
 # setup a custom logging format
@@ -90,7 +96,7 @@ logging_setup()
 
 # while # of replications
     # reset everything
-    
+
 # initialize all components
 buffer11 = Buffer(1, 1)
 buffer12 = Buffer(1, 2)
@@ -98,12 +104,14 @@ buffer13 = Buffer(1, 3)
 buffer22 = Buffer(2, 2)
 buffer33 = Buffer(3, 3)
 
+all_buffers = [buffer11, buffer12, buffer13, buffer22, buffer33]
+
 insp1 = Inspector1(buffers=[buffer11, buffer12, buffer13])
 insp2 = Inspector2(buffers=[buffer22, buffer33])
 
 w1 = Workstation(1, [buffer11], "data-rv/ws1.dat")
-w2 = Workstation(1, [buffer12, buffer22], "data-rv/ws2.dat")
-w3 = Workstation(1, [buffer13, buffer33], "data-rv/ws3.dat")
+w2 = Workstation(2, [buffer12, buffer22], "data-rv/ws2.dat")
+w3 = Workstation(3, [buffer13, buffer33], "data-rv/ws3.dat")
 
 workstations = [w1, w2, w3]
 
@@ -116,7 +124,7 @@ sim.scheduleArrival(insp2)
 
 i = 0
 end = False
-
+num_of_events = 0
 
 while not end :
     print(i)
@@ -132,6 +140,10 @@ while not end :
     # process the next event in the FEL
     if not sim._FutureEventList.empty():
         evt = sim._FutureEventList.get()
+
+        # check buffer capacities. create a variable that keeps track of number of events
+        sim.check_buffer_sizes()
+        num_of_events += 1
 
         sim.Clock = evt[0]
 
@@ -154,5 +166,7 @@ while not end :
     end = (insp1.done and insp2.done) or (insp1.done and insp2.is_blocked()) or (insp2.done and insp1.is_blocked())
     print("Total components inspected = ", sim.components_inspected)
     print("Total components consumed = ", sim.components_consumed)
-
+    print("Average buffer capacity = ", sim.total_comp_in_buffers / num_of_events /5 )
+    print("products produced: ", sim.products_produced )
+    print("Average product throughput = ", sim.products_produced / sim.Clock )
 
