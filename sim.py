@@ -87,6 +87,10 @@ class Sim():
 # setup a custom logging format
 logging_setup()
 
+
+# while # of replications
+    # reset everything
+    
 # initialize all components
 buffer11 = Buffer(1, 1)
 buffer12 = Buffer(1, 2)
@@ -112,6 +116,8 @@ sim.scheduleArrival(insp2)
 
 i = 0
 end = False
+
+
 while not end :
     print(i)
     i += 1
