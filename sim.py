@@ -188,6 +188,19 @@ while not end :
     print("Workstation 2 proportion of time busy: ", sim.workstations.get(2).get_proportion_idle_time(sim.Clock) )
     print("Workstation 3 proportion of time busy: ", sim.workstations.get(3).get_proportion_idle_time(sim.Clock) )
 
+write_to_file("quantities-data/throughput.txt", "\n Products throughput: "+ str(sim.products_produced / sim.Clock) )
+write_to_file("quantities-data/throughput.txt", "\n Product 1 throughput: "+ str(sim.product1_produced / sim.Clock) )
+write_to_file("quantities-data/throughput.txt", "\n Product 2 throughput: "+str(sim.product2_produced / sim.Clock) )
+write_to_file("quantities-data/throughput.txt", "\n Product 3 throughput: "+str(sim.product3_produced / sim.Clock) )
+
+write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time busy: "+ str(sim.workstations.get(1).get_proportion_idle_time(sim.Clock)) )
+write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_idle_time(sim.Clock)) )
+write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_idle_time(sim.Clock)) )
+
+
+
+
+
 
 
 
