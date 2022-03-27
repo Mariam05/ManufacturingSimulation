@@ -26,7 +26,7 @@ class Inspector():
 class Inspector1(Inspector):
     def __init__(self, buffers: List[Buffer]):
         Inspector.__init__(self,1, buffers)
-        self.__c1Filename = "data/servinsp1.dat"
+        self.__c1Filename = "data-rv/servinsp1.dat"
         self.__c1Generator = (float(row.rstrip()) for row in open(self.__c1Filename)) # a generator to read the service times
 
     def get_next_service_time(self):
@@ -63,8 +63,8 @@ class Inspector1(Inspector):
 class Inspector2(Inspector):
     def __init__(self, buffers: List[Buffer]):
         Inspector.__init__(self,2, buffers)
-        self.__c2Filename = "data/servinsp22.dat"
-        self.__c3Filename = "data/servinsp23.dat"
+        self.__c2Filename = "data-rv/servinsp22.dat"
+        self.__c3Filename = "data-rv/servinsp23.dat"
         self.__c2Generator = (float(row.rstrip()) for row in open(self.__c2Filename))
         self.__c3Generator = (float(row.rstrip()) for row in open(self.__c3Filename))
 
@@ -90,7 +90,7 @@ class Inspector2(Inspector):
         ''' Creates an event tuple that indicates what component the inspector is inspecting and 
         when the inspector will finish inspecting it. (ie. when it will arrive to a buffer). 
         The clock parameter is the current simulation time. '''
-        chosen_comp = randint(2, 3) # randomly determine whether the inspector will inspect C1 or C2
+        chosen_comp = randint(2, 3) # randomly determine whether the inspector will inspect C2 or C3
         if chosen_comp == 2:
             insp_time = self.get_next_C2_service_time()
         else:

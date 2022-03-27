@@ -97,9 +97,9 @@ buffer33 = Buffer(3, 3)
 insp1 = Inspector1(buffers=[buffer11, buffer12, buffer13])
 insp2 = Inspector2(buffers=[buffer22, buffer33])
 
-w1 = Workstation(1, [buffer11], "data/ws1.dat")
-w2 = Workstation(1, [buffer12, buffer22], "data/ws2.dat")
-w3 = Workstation(1, [buffer13, buffer33], "data/ws3.dat")
+w1 = Workstation(1, [buffer11], "data-rv/ws1.dat")
+w2 = Workstation(1, [buffer12, buffer22], "data-rv/ws2.dat")
+w3 = Workstation(1, [buffer13, buffer33], "data-rv/ws3.dat")
 
 workstations = [w1, w2, w3]
 
