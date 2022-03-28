@@ -1,0 +1,10 @@
+Inspector 1 Proportion of Time Idle: 0.0011321656650062236
+Inspector 2 Proportion of Time Idle: 0.7896255114747658
+Inspector 1 Proportion of Time Idle: 0.0
+Inspector 2 Proportion of Time Idle: 0.7827312327550195
+Inspector 1 Proportion of Time Idle: 0.0
+Inspector 2 Proportion of Time Idle: 0.7873736000335686
+Inspector 1 Proportion of Time Idle: 0.0
+Inspector 2 Proportion of Time Idle: 0.7823699655805402
+Inspector 1 Proportion of Time Idle: 0.0
+Inspector 2 Proportion of Time Idle: 0.7760444394062519
