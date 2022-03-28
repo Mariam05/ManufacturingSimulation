@@ -44,8 +44,8 @@ class Workstation():
         ''' Calculates the total idle time of the workstation '''
         service_time = 0; 
         for t in self.processing_time:
-            service_time+=1
-        idle_time = service_time/clock 
+            service_time+=t
+        idle_time = (clock - service_time)/clock 
         return idle_time
 
         

@@ -7,3 +7,13 @@
  Workstation 1 proportion of time busy: 1.3875318999336876
 
  Workstation 1 proportion of time busy: 1.3875318999336876
+
+ Workstation 1 proportion of time idle: 0.4207882498989813
+
+ Workstation 1 proportion of time idle: 0.4207882498989813
+
+ Workstation 1 proportion of time idle: 0.4207882498989813
+
+ Workstation 1 proportion of time idle: 0.4207882498989813
+
+ Workstation 1 proportion of time idle: 0.4207882498989813

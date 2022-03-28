@@ -98,111 +98,120 @@ class Sim():
     def check_buffer_sizes(self):
         for buffer in all_buffers:
             buffer.update_capacity()
-            write_to_csv("quantities-data/buffer.csv" + str(buffer.component_type) + str(buffer.wst_id), [buffer.size, sim.Clock] )
+            write_to_csv("quantities-data/buffer" + str(buffer.component_type)  + str(buffer.wst_id) + ".csv", [buffer.size, sim.Clock] )
             self.total_comp_in_buffers += buffer.size
 
 
 # setup a custom logging format
 logging_setup()
+NUM_OF_REPLICATIONS = 5
+metrics_filename = "quantities-data/metrics.csv"
+header = ["replication", "total product throughput", "p1 throughput", "p2 throughput", "p3 throughput", "ws1 idle", "ws2 idle", "ws3 idle", "insp1 idle", "insp2 idle"
+        "buffer11", "buffer12", "buffer13", "buffer22", "buffer33"]
+delete_file_contents(metrics_filename) # reset it
+write_to_csv(metrics_filename, header)
 
-
-# while # of replications
+for rep in range(1, 1+NUM_OF_REPLICATIONS):
     # reset everything
 
-# initialize all components
-buffer11 = Buffer(1, 1)
-buffer12 = Buffer(1, 2)
-buffer13 = Buffer(1, 3)
-buffer22 = Buffer(2, 2)
-buffer33 = Buffer(3, 3)
+    # initialize all components
+    buffer11 = Buffer(1, 1)
+    buffer12 = Buffer(1, 2)
+    buffer13 = Buffer(1, 3)
+    buffer22 = Buffer(2, 2)
+    buffer33 = Buffer(3, 3)
 
-all_buffers = [buffer11, buffer12, buffer13, buffer22, buffer33]
+    all_buffers = [buffer11, buffer12, buffer13, buffer22, buffer33]
 
-insp1 = Inspector1(buffers=[buffer11, buffer12, buffer13])
-insp2 = Inspector2(buffers=[buffer22, buffer33])
+    insp1 = Inspector1(buffers=[buffer11, buffer12, buffer13])
+    insp2 = Inspector2(buffers=[buffer22, buffer33])
 
-w1 = Workstation(1, [buffer11], "data-rv/ws1.dat")
-w2 = Workstation(2, [buffer12, buffer22], "data-rv/ws2.dat")
-w3 = Workstation(3, [buffer13, buffer33], "data-rv/ws3.dat")
+    w1 = Workstation(1, [buffer11], "data-rv/ws1.dat")
+    w2 = Workstation(2, [buffer12, buffer22], "data-rv/ws2.dat")
+    w3 = Workstation(3, [buffer13, buffer33], "data-rv/ws3.dat")
 
-workstations = [w1, w2, w3]
+    workstations = [w1, w2, w3]
 
-sim = Sim(inspectors={1: insp1, 2: insp2}, 
-            workstations={1: w1, 2: w2, 3: w3})
+    sim = Sim(inspectors={1: insp1, 2: insp2}, 
+                workstations={1: w1, 2: w2, 3: w3})
 
-# start the inspectors
-sim.scheduleArrival(insp1)
-sim.scheduleArrival(insp2)
+    # start the inspectors
+    sim.scheduleArrival(insp1)
+    sim.scheduleArrival(insp2)
 
-i = 0
-end = False
-num_of_events = 0
+    i = 0
+    end = False
+    num_of_events = 0
 
-while not end :
-    print(i)
-    i += 1
-    print("FEL: ", sim._FutureEventList.queue)
-    print(f"buffers: \n \t  W1B1: {buffer11.size} , W2B1: {buffer12.size}, W2B2: {buffer22.size}, W3B1: {buffer13.size}, W3B3: {buffer33.size} ")
+    
+    while not end :
+        print(i)
+        i += 1
+        print("FEL: ", sim._FutureEventList.queue)
+        print(f"buffers: \n \t  W1B1: {buffer11.size} , W2B1: {buffer12.size}, W2B2: {buffer22.size}, W3B1: {buffer13.size}, W3B3: {buffer33.size} ")
 
-    # for each workstation, check if it can start processing a product
-    for wst in workstations:
-        if wst.is_available():
-            sim.schedule_departure(wst)
+        # for each workstation, check if it can start processing a product
+        for wst in workstations:
+            if wst.is_available():
+                sim.schedule_departure(wst)
 
-    # process the next event in the FEL
-    if not sim._FutureEventList.empty():
-        evt = sim._FutureEventList.get()
+        # process the next event in the FEL
+        if not sim._FutureEventList.empty():
+            evt = sim._FutureEventList.get()
 
-        # check buffer capacities. create a variable that keeps track of number of events
-        sim.check_buffer_sizes()
-        num_of_events += 1
+            # check buffer capacities. create a variable that keeps track of number of events
+            sim.check_buffer_sizes()
+            num_of_events += 1
 
-        sim.Clock = evt[0]
+            sim.Clock = evt[0]
 
-        logging.info("event being processed: %s", str(evt))
-        logging.info("time is: %f", sim.Clock)
+            logging.info("event being processed: %s", str(evt))
+            logging.info("time is: %f", sim.Clock)
 
-        if (evt[1] == arrival): # arrival to buffer 
-            sim.processArrival(evt)
-        elif (evt[1] == departure): # departure from workstation
-            sim.processDeparture(evt)
-   
-    # schedule the next arrival of a component to the buffer if the inspector isn't blocked
-    if not insp1.is_blocked():
-        sim.scheduleArrival(insp1)
+            if (evt[1] == arrival): # arrival to buffer 
+                sim.processArrival(evt)
+            elif (evt[1] == departure): # departure from workstation
+                sim.processDeparture(evt)
+    
+        # schedule the next arrival of a component to the buffer if the inspector isn't blocked
+        if not insp1.is_blocked():
+            sim.scheduleArrival(insp1)
 
-    if not insp2.is_blocked():
-        sim.scheduleArrival(insp2)
+        if not insp2.is_blocked():
+            sim.scheduleArrival(insp2)
 
-    # the simulation ends if either both inspectors are done, or one is done and the other is blocked
-    end = (insp1.done and insp2.done) or (insp1.done and insp2.is_blocked()) or (insp2.done and insp1.is_blocked())
-    print("Total components inspected = ", sim.components_inspected)
-    print("Total components consumed = ", sim.components_consumed)
-    print("Average buffer capacity = ", sim.total_comp_in_buffers / num_of_events /5 )
-    print("products produced: ", sim.products_produced )
-    print("Average product throughput = ", sim.products_produced / sim.Clock )
-    print("product 1 produced: ", sim.product1_produced )
-    print("Average product 1 throughput = ", sim.product1_produced / sim.Clock )
-    print("product 2 produced: ", sim.product2_produced )
-    print("Average product 2 throughput = ", sim.product2_produced / sim.Clock )
-    print("product 3 produced: ", sim.product3_produced )
-    print("Average product 3 throughput = ", sim.product3_produced / sim.Clock )
-    print("Workstation 1 proportion of time busy: ", sim.workstations.get(1).get_proportion_idle_time(sim.Clock) )
-    print("Workstation 2 proportion of time busy: ", sim.workstations.get(2).get_proportion_idle_time(sim.Clock) )
-    print("Workstation 3 proportion of time busy: ", sim.workstations.get(3).get_proportion_idle_time(sim.Clock) )
+        # the simulation ends if either both inspectors are done, or one is done and the other is blocked
+        end = (insp1.done and insp2.done) or (insp1.done and insp2.is_blocked()) or (insp2.done and insp1.is_blocked())
+  
+    write_to_file("quantities-data/metrics.txt", "Replication #" + str(rep))
+    write_to_file("quantities-data/metrics.txt", "\n Products throughput: "+ str(sim.products_produced / sim.Clock) )
+    write_to_file("quantities-data/metrics.txt", "\n Product 1 throughput: "+ str(sim.product1_produced / sim.Clock) )
+    write_to_file("quantities-data/metrics.txt", "\n Product 2 throughput: "+str(sim.product2_produced / sim.Clock) )
+    write_to_file("quantities-data/metrics.txt", "\n Product 3 throughput: "+str(sim.product3_produced / sim.Clock) )
 
-write_to_file("quantities-data/throughput.txt", "\n Products throughput: "+ str(sim.products_produced / sim.Clock) )
-write_to_file("quantities-data/throughput.txt", "\n Product 1 throughput: "+ str(sim.product1_produced / sim.Clock) )
-write_to_file("quantities-data/throughput.txt", "\n Product 2 throughput: "+str(sim.product2_produced / sim.Clock) )
-write_to_file("quantities-data/throughput.txt", "\n Product 3 throughput: "+str(sim.product3_produced / sim.Clock) )
+    write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time idle: "+ str(sim.workstations.get(1).get_proportion_idle_time(sim.Clock)) )
+    write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_idle_time(sim.Clock)) )
+    write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_idle_time(sim.Clock)) )
 
-write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time busy: "+ str(sim.workstations.get(1).get_proportion_idle_time(sim.Clock)) )
-write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_idle_time(sim.Clock)) )
-write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_idle_time(sim.Clock)) )
+    write_to_file("quantities-data/metrics.txt", "inspector 1 proportion of time idle: " + str(insp1.proportion_of_time_idle(sim.Clock)))
+    write_to_file("quantities-data/metrics.txt", "inspector 2 proportion of time idle: " + str(insp2.proportion_of_time_idle(sim.Clock)))
 
-write_to_file("quantities-data/metrics.txt", "inspector 1 proportion of time idle: " + str(insp1.proportion_of_time_idle(sim.Clock)))
-write_to_file("quantities-data/metrics.txt", "inspector 2 proportion of time idle: " + str(insp2.proportion_of_time_idle(sim.Clock)))
+    product_throughput = sim.products_produced / sim.Clock
+    product1_throughput = sim.product1_produced / sim.Clock
+    product2_throughput = sim.product2_produced / sim.Clock
+    product3_throughput = sim.product3_produced / sim.Clock
 
-for buffer in all_buffers:
-    data = "Average buffer " + str(buffer.component_type) + str(buffer.wst_id) + " capacity " + str(buffer.running_capacity/num_of_events)
-    write_to_file("quantities-data/metrics.txt", data)
+    wst1_idle = sim.workstations.get(1).get_proportion_idle_time(sim.Clock)
+    wst2_idle = sim.workstations.get(2).get_proportion_idle_time(sim.Clock)
+    wst3_idle = sim.workstations.get(3).get_proportion_idle_time(sim.Clock)
+
+    insp1_idle = insp1.proportion_of_time_idle(sim.Clock)
+    insp2_idle = insp2.proportion_of_time_idle(sim.Clock)
+
+    # row = replication, total product throughput, p1 throughput, p2 throughput, p3 throughput, ws1 idle, ws2 idle, ws3 idle, insp1 idle, insp2 idle
+    row = [rep, product_throughput, product1_throughput, product2_throughput, product3_throughput, wst1_idle, wst2_idle, wst3_idle, insp1_idle,insp2_idle] 
+    
+    for buffer in all_buffers:
+        row.append(buffer.running_capacity/num_of_events)
+
+    write_to_csv("quantities-data/metrics.csv", row)
