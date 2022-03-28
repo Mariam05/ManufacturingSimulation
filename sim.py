@@ -1,3 +1,4 @@
+from asyncore import write
 import queue
 from typing import Dict, List
 
@@ -96,6 +97,8 @@ class Sim():
          
     def check_buffer_sizes(self):
         for buffer in all_buffers:
+            buffer.update_capacity()
+            write_to_csv("quantities-data/buffer.csv" + str(buffer.component_type) + str(buffer.wst_id), [buffer.size, sim.Clock] )
             self.total_comp_in_buffers += buffer.size
 
 
@@ -197,11 +200,9 @@ write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time bu
 write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_idle_time(sim.Clock)) )
 write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_idle_time(sim.Clock)) )
 
+write_to_file("quantities-data/metrics.txt", "inspector 1 proportion of time idle: " + str(insp1.proportion_of_time_idle(sim.Clock)))
+write_to_file("quantities-data/metrics.txt", "inspector 2 proportion of time idle: " + str(insp2.proportion_of_time_idle(sim.Clock)))
 
-
-
-
-
-
-
-
+for buffer in all_buffers:
+    data = "Average buffer " + str(buffer.component_type) + str(buffer.wst_id) + " capacity " + str(buffer.running_capacity/num_of_events)
+    write_to_file("quantities-data/metrics.txt", data)

@@ -32,6 +32,7 @@ class Workstation():
         dept_time = clock + nxt
         for buffer in self.buffers:
             buffer.remove_from_buffer() # remove the components from the buffer
+        write_to_csv("quantities-data/wst" + str(self.id) + ".csv",[nxt, clock, clock+nxt, 1])
         evt = (dept_time, departure, self.id, None, None)
         return evt
 

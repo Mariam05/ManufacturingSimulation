@@ -1,2 +1,9 @@
 
  Workstation 2 proportion of time busy: 0.38678986591071823
+ Workstation 2 proportion of time busy: 0.40520843095408576
+ Workstation 2 proportion of time busy: 0.38678986591071823
+ Workstation 2 proportion of time busy: 0.38678986591071823
+
+ Workstation 2 proportion of time busy: 0.38678986591071823
+
+ Workstation 2 proportion of time busy: 0.4113479526352083

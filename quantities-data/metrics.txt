@@ -1,0 +1,14 @@
+inspector 1 proportion of time idle: 0.0
+inspector 2 proportion of time idle: 0.7809917054134432
+Average buffer 11 capacity 0.3209509658246657
+Average buffer 12 capacity 0.09361069836552749
+Average buffer 13 capacity 0.0
+Average buffer 22 capacity 1.4784546805349184
+Average buffer 33 capacity 1.7979197622585439
+inspector 1 proportion of time idle: 0.0
+inspector 2 proportion of time idle: 0.7821559326531529
+Average buffer 11 capacity 0.3249258160237389
+Average buffer 12 capacity 0.10385756676557864
+Average buffer 13 capacity 0.0
+Average buffer 22 capacity 1.4792284866468843
+Average buffer 33 capacity 1.8590504451038576

@@ -5,6 +5,7 @@ class Buffer():
         self.component_type = comp_type # what kind of component it holds
         self.wait_times = [] # how long a component waited in the buffer. the size of this list should be the amount of components that went into the buffer. 
         self.wst_id = wst_id # the workstation that the buffer belongs to
+        self.running_capacity = 0
 
     def is_full(self) -> bool:
         ''' Determines if there's space in the buffer '''
@@ -26,3 +27,6 @@ class Buffer():
         ''' Remove a component from the buffer '''
         self.size -= 1
 
+    def update_capacity(self):
+        ''' To be called with every event '''
+        self.running_capacity += self.size
