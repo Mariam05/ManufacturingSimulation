@@ -15,6 +15,8 @@ def logging_setup():
 arrival = 1
 departure = 2
 
+NUM_OF_REPLICATIONS = 5
+INIT_PHASE = 0.51
 
 def write_to_file(filename, data):
     ''' A utility function that takes a filename and appends the data to the last line in the file. '''
