@@ -12,3 +12,58 @@ Average buffer 12 capacity 0.10385756676557864
 Average buffer 13 capacity 0.0
 Average buffer 22 capacity 1.4792284866468843
 Average buffer 33 capacity 1.8590504451038576
+Replication #1
+
+ Products throughput: 1.835716982655631
+
+ Product 1 throughput: 1.3875318999336876
+
+ Product 2 throughput: 0.40520843095408576
+
+ Product 3 throughput: 0.04297665176785758
+inspector 1 proportion of time idle: 0.0
+inspector 2 proportion of time idle: 0.7808189382707363
+Replication #2
+
+ Products throughput: 1.835716982655631
+
+ Product 1 throughput: 1.3875318999336876
+
+ Product 2 throughput: 0.40520843095408576
+
+ Product 3 throughput: 0.04297665176785758
+inspector 1 proportion of time idle: 0.0
+inspector 2 proportion of time idle: 0.7852376498129463
+Replication #3
+
+ Products throughput: 1.8295774609745084
+
+ Product 1 throughput: 1.3875318999336876
+
+ Product 2 throughput: 0.38678986591071823
+
+ Product 3 throughput: 0.0552556951301026
+inspector 1 proportion of time idle: 0.0
+inspector 2 proportion of time idle: 0.7823144625004039
+Replication #4
+
+ Products throughput: 1.835716982655631
+
+ Product 1 throughput: 1.3875318999336876
+
+ Product 2 throughput: 0.40520843095408576
+
+ Product 3 throughput: 0.04297665176785758
+inspector 1 proportion of time idle: 0.0
+inspector 2 proportion of time idle: 0.7816144406093166
+Replication #5
+
+ Products throughput: 1.8295774609745084
+
+ Product 1 throughput: 1.3875318999336876
+
+ Product 2 throughput: 0.38678986591071823
+
+ Product 3 throughput: 0.0552556951301026
+inspector 1 proportion of time idle: 0.0
+inspector 2 proportion of time idle: 0.7840740522722348

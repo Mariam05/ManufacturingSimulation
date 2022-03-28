@@ -7,3 +7,13 @@
  Workstation 3 proportion of time busy: 0.06139521681122512
 
  Workstation 3 proportion of time busy: 0.036837130086735066
+
+ Workstation 3 proportion of time busy: 0.9930088884008018
+
+ Workstation 3 proportion of time busy: 0.9930088884008018
+
+ Workstation 3 proportion of time busy: 0.972933083537099
+
+ Workstation 3 proportion of time busy: 0.9930088884008018
+
+ Workstation 3 proportion of time busy: 0.972933083537099
