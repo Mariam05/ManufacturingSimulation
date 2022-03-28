@@ -68,8 +68,9 @@ class Inspector1(Inspector):
         if (insp_time == None):
             self.blocked = True
             return
-        self.processing_time.append(insp_time)
-        write_to_csv("quantities-data/insp1.csv",[insp_time, clock, clock+insp_time])
+        if (clock >= INIT_PHASE):
+            self.processing_time.append(insp_time)
+        # write_to_csv("quantities-data/insp1.csv",[insp_time, clock, clock+insp_time])
         return (insp_time + clock, arrival, None, 1, self.id)
 
 
@@ -112,7 +113,8 @@ class Inspector2(Inspector):
         if (insp_time == None):
             self.blocked = True
             return
-        self.processing_time.append(insp_time)
-        write_to_csv("quantities-data/insp2.csv",[insp_time, clock, clock+insp_time])
+        if (clock >= INIT_PHASE):
+            self.processing_time.append(insp_time)
+        # write_to_csv("quantities-data/insp2.csv",[insp_time, clock, clock+insp_time])
 
         return (insp_time + clock, arrival, None, 1, self.id)

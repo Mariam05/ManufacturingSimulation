@@ -84,27 +84,29 @@ class Sim():
         workstation.process_departure()
         logging.info("Product is departing from workstation %d", workstation_id)
 
-        self.products_produced += 1
-        if (workstation_id == 1):
-            self.product1_produced+=1 
-            self.components_consumed += 1
-        elif (workstation_id == 2):
-            self.product2_produced+=1
-            self.components_consumed += 2
-        else:
-            self.product3_produced+=1
-            self.components_consumed += 2
+        if (self.Clock >= INIT_PHASE):
+            self.products_produced += 1
+            if (workstation_id == 1):
+                self.product1_produced+=1 
+                self.components_consumed += 1
+            elif (workstation_id == 2):
+                self.product2_produced+=1
+                self.components_consumed += 2
+            else:
+                self.product3_produced+=1
+                self.components_consumed += 2
          
     def check_buffer_sizes(self):
         for buffer in all_buffers:
-            buffer.update_capacity()
-            write_to_csv("quantities-data/buffer" + str(buffer.component_type)  + str(buffer.wst_id) + ".csv", [buffer.size, sim.Clock] )
+            if (self.Clock >= INIT_PHASE):
+                buffer.update_capacity()
+            # write_to_csv("quantities-data/buffer" + str(buffer.component_type)  + str(buffer.wst_id) + ".csv", [buffer.size, sim.Clock] )
             self.total_comp_in_buffers += buffer.size
 
 
 # setup a custom logging format
 logging_setup()
-NUM_OF_REPLICATIONS = 5
+
 metrics_filename = "quantities-data/metrics.csv"
 header = ["replication", "total product throughput", "p1 throughput", "p2 throughput", "p3 throughput", "ws1 busy", "ws2 busy", "ws3 busy", "insp1 idle", "insp2 idle",
         "buffer11", "buffer12", "buffer13", "buffer22", "buffer33"]
@@ -142,7 +144,8 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
     i = 0
     end = False
     num_of_events = 0
-
+    past_init = False
+    start_time = 0
     
     while not end :
         print(i)
@@ -164,6 +167,9 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
             num_of_events += 1
 
             sim.Clock = evt[0]
+            if not past_init and sim.Clock >= INIT_PHASE:
+                start_time = sim.Clock
+                past_init = True
 
             logging.info("event being processed: %s", str(evt))
             logging.info("time is: %f", sim.Clock)
@@ -183,30 +189,31 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
         # the simulation ends if either both inspectors are done, or one is done and the other is blocked
         end = (insp1.done and insp2.done) or (insp1.done and insp2.is_blocked()) or (insp2.done and insp1.is_blocked())
   
-    write_to_file("quantities-data/metrics.txt", "Replication #" + str(rep))
-    write_to_file("quantities-data/metrics.txt", "\n Products throughput: "+ str(sim.products_produced / sim.Clock) )
-    write_to_file("quantities-data/metrics.txt", "\n Product 1 throughput: "+ str(sim.product1_produced / sim.Clock) )
-    write_to_file("quantities-data/metrics.txt", "\n Product 2 throughput: "+str(sim.product2_produced / sim.Clock) )
-    write_to_file("quantities-data/metrics.txt", "\n Product 3 throughput: "+str(sim.product3_produced / sim.Clock) )
+    # write_to_file("quantities-data/metrics.txt", "Replication #" + str(rep))
+    # write_to_file("quantities-data/metrics.txt", "\n Products throughput: "+ str(sim.products_produced / sim.Clock) )
+    # write_to_file("quantities-data/metrics.txt", "\n Product 1 throughput: "+ str(sim.product1_produced / sim.Clock) )
+    # write_to_file("quantities-data/metrics.txt", "\n Product 2 throughput: "+str(sim.product2_produced / sim.Clock) )
+    # write_to_file("quantities-data/metrics.txt", "\n Product 3 throughput: "+str(sim.product3_produced / sim.Clock) )
 
-    write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time busy: "+ str(sim.workstations.get(1).get_proportion_time_busy(sim.Clock)) )
-    write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_time_busy(sim.Clock)) )
-    write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_time_busy(sim.Clock)) )
+    # write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time busy: "+ str(sim.workstations.get(1).get_proportion_time_busy(sim.Clock)) )
+    # write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_time_busy(sim.Clock)) )
+    # write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_time_busy(sim.Clock)) )
 
-    write_to_file("quantities-data/metrics.txt", "inspector 1 proportion of time idle: " + str(insp1.proportion_of_time_idle(sim.Clock)))
-    write_to_file("quantities-data/metrics.txt", "inspector 2 proportion of time idle: " + str(insp2.proportion_of_time_idle(sim.Clock)))
+    # write_to_file("quantities-data/metrics.txt", "inspector 1 proportion of time idle: " + str(insp1.proportion_of_time_idle(sim.Clock)))
+    # write_to_file("quantities-data/metrics.txt", "inspector 2 proportion of time idle: " + str(insp2.proportion_of_time_idle(sim.Clock)))
 
-    product_throughput = sim.products_produced / sim.Clock
-    product1_throughput = sim.product1_produced / sim.Clock
-    product2_throughput = sim.product2_produced / sim.Clock
-    product3_throughput = sim.product3_produced / sim.Clock
+    net_sim_time = sim.Clock - start_time
+    product_throughput = sim.products_produced / net_sim_time
+    product1_throughput = sim.product1_produced / net_sim_time
+    product2_throughput = sim.product2_produced / net_sim_time
+    product3_throughput = sim.product3_produced / net_sim_time
 
-    wst1_busy = sim.workstations.get(1).get_proportion_time_busy(sim.Clock)
-    wst2_busy = sim.workstations.get(2).get_proportion_time_busy(sim.Clock)
-    wst3_busy = sim.workstations.get(3).get_proportion_time_busy(sim.Clock)
+    wst1_busy = sim.workstations.get(1).get_proportion_time_busy(net_sim_time)
+    wst2_busy = sim.workstations.get(2).get_proportion_time_busy(net_sim_time)
+    wst3_busy = sim.workstations.get(3).get_proportion_time_busy(net_sim_time)
 
-    insp1_idle = insp1.proportion_of_time_idle(sim.Clock)
-    insp2_idle = insp2.proportion_of_time_idle(sim.Clock)
+    insp1_idle = insp1.proportion_of_time_idle(net_sim_time)
+    insp2_idle = insp2.proportion_of_time_idle(net_sim_time)
 
     # row = replication, total product throughput, p1 throughput, p2 throughput, p3 throughput, ws1 idle, ws2 idle, ws3 idle, insp1 idle, insp2 idle
     row = [rep, product_throughput, product1_throughput, product2_throughput, product3_throughput, wst1_busy, wst2_busy, wst3_busy, insp1_idle,insp2_idle] 
