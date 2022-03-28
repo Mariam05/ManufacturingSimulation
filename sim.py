@@ -106,7 +106,7 @@ class Sim():
 logging_setup()
 NUM_OF_REPLICATIONS = 5
 metrics_filename = "quantities-data/metrics.csv"
-header = ["replication", "total product throughput", "p1 throughput", "p2 throughput", "p3 throughput", "ws1 idle", "ws2 idle", "ws3 idle", "insp1 idle", "insp2 idle",
+header = ["replication", "total product throughput", "p1 throughput", "p2 throughput", "p3 throughput", "ws1 busy", "ws2 busy", "ws3 busy", "insp1 idle", "insp2 idle",
         "buffer11", "buffer12", "buffer13", "buffer22", "buffer33"]
 delete_file_contents(metrics_filename) # reset it
 write_to_csv(metrics_filename, header)
@@ -189,9 +189,9 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
     write_to_file("quantities-data/metrics.txt", "\n Product 2 throughput: "+str(sim.product2_produced / sim.Clock) )
     write_to_file("quantities-data/metrics.txt", "\n Product 3 throughput: "+str(sim.product3_produced / sim.Clock) )
 
-    write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time idle: "+ str(sim.workstations.get(1).get_proportion_idle_time(sim.Clock)) )
-    write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time idle: "+str(sim.workstations.get(2).get_proportion_idle_time(sim.Clock)) )
-    write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time idle: "+str(sim.workstations.get(3).get_proportion_idle_time(sim.Clock)) )
+    write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time busy: "+ str(sim.workstations.get(1).get_proportion_time_busy(sim.Clock)) )
+    write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_time_busy(sim.Clock)) )
+    write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_time_busy(sim.Clock)) )
 
     write_to_file("quantities-data/metrics.txt", "inspector 1 proportion of time idle: " + str(insp1.proportion_of_time_idle(sim.Clock)))
     write_to_file("quantities-data/metrics.txt", "inspector 2 proportion of time idle: " + str(insp2.proportion_of_time_idle(sim.Clock)))
@@ -201,15 +201,15 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
     product2_throughput = sim.product2_produced / sim.Clock
     product3_throughput = sim.product3_produced / sim.Clock
 
-    wst1_idle = sim.workstations.get(1).get_proportion_idle_time(sim.Clock)
-    wst2_idle = sim.workstations.get(2).get_proportion_idle_time(sim.Clock)
-    wst3_idle = sim.workstations.get(3).get_proportion_idle_time(sim.Clock)
+    wst1_busy = sim.workstations.get(1).get_proportion_time_busy(sim.Clock)
+    wst2_busy = sim.workstations.get(2).get_proportion_time_busy(sim.Clock)
+    wst3_busy = sim.workstations.get(3).get_proportion_time_busy(sim.Clock)
 
     insp1_idle = insp1.proportion_of_time_idle(sim.Clock)
     insp2_idle = insp2.proportion_of_time_idle(sim.Clock)
 
     # row = replication, total product throughput, p1 throughput, p2 throughput, p3 throughput, ws1 idle, ws2 idle, ws3 idle, insp1 idle, insp2 idle
-    row = [rep, product_throughput, product1_throughput, product2_throughput, product3_throughput, wst1_idle, wst2_idle, wst3_idle, insp1_idle,insp2_idle] 
+    row = [rep, product_throughput, product1_throughput, product2_throughput, product3_throughput, wst1_busy, wst2_busy, wst3_busy, insp1_idle,insp2_idle] 
     
     for buffer in all_buffers:
         row.append(buffer.running_capacity/num_of_events)
