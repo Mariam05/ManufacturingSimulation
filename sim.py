@@ -106,7 +106,7 @@ class Sim():
 logging_setup()
 NUM_OF_REPLICATIONS = 5
 metrics_filename = "quantities-data/metrics.csv"
-header = ["replication", "total product throughput", "p1 throughput", "p2 throughput", "p3 throughput", "ws1 idle", "ws2 idle", "ws3 idle", "insp1 idle", "insp2 idle"
+header = ["replication", "total product throughput", "p1 throughput", "p2 throughput", "p3 throughput", "ws1 idle", "ws2 idle", "ws3 idle", "insp1 idle", "insp2 idle",
         "buffer11", "buffer12", "buffer13", "buffer22", "buffer33"]
 delete_file_contents(metrics_filename) # reset it
 write_to_csv(metrics_filename, header)
@@ -190,8 +190,8 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
     write_to_file("quantities-data/metrics.txt", "\n Product 3 throughput: "+str(sim.product3_produced / sim.Clock) )
 
     write_to_file("quantities-data/ws1.txt", "\n Workstation 1 proportion of time idle: "+ str(sim.workstations.get(1).get_proportion_idle_time(sim.Clock)) )
-    write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time busy: "+str(sim.workstations.get(2).get_proportion_idle_time(sim.Clock)) )
-    write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time busy: "+str(sim.workstations.get(3).get_proportion_idle_time(sim.Clock)) )
+    write_to_file("quantities-data/ws2.txt", "\n Workstation 2 proportion of time idle: "+str(sim.workstations.get(2).get_proportion_idle_time(sim.Clock)) )
+    write_to_file("quantities-data/ws3.txt", "\n Workstation 3 proportion of time idle: "+str(sim.workstations.get(3).get_proportion_idle_time(sim.Clock)) )
 
     write_to_file("quantities-data/metrics.txt", "inspector 1 proportion of time idle: " + str(insp1.proportion_of_time_idle(sim.Clock)))
     write_to_file("quantities-data/metrics.txt", "inspector 2 proportion of time idle: " + str(insp2.proportion_of_time_idle(sim.Clock)))
