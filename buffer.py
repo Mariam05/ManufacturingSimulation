@@ -22,6 +22,8 @@ class Buffer():
     def add_to_buffer(self):
         ''' Add a component to the buffer '''
         self.size += 1
+        if self.size > 2:
+            raise Exception("buffer is overflowing")
 
     def remove_from_buffer(self):
         ''' Remove a component from the buffer '''

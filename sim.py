@@ -100,6 +100,7 @@ class Sim():
         for buffer in all_buffers:
             if (self.Clock >= INIT_PHASE):
                 buffer.update_capacity()
+                
             # write_to_csv("quantities-data/buffer" + str(buffer.component_type)  + str(buffer.wst_id) + ".csv", [buffer.size, sim.Clock] )
             self.total_comp_in_buffers += buffer.size
 
