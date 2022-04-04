@@ -101,14 +101,14 @@ class Sim():
             if (self.Clock >= INIT_PHASE):
                 buffer.update_capacity()
                 
-            # write_to_csv("quantities-data/buffer" + str(buffer.component_type)  + str(buffer.wst_id) + ".csv", [buffer.size, sim.Clock] )
+            # write_to_csv("data/quantities-data/buffer" + str(buffer.component_type)  + str(buffer.wst_id) + ".csv", [buffer.size, sim.Clock] )
             self.total_comp_in_buffers += buffer.size
 
 
 # setup a custom logging format
 logging_setup()
 
-metrics_filename = "quantities-data/metrics.csv"
+metrics_filename = "data/quantities-data/metrics.csv"
 header = ["replication", "total product throughput", "p1 throughput", "p2 throughput", "p3 throughput", "ws1 busy", "ws2 busy", "ws3 busy", "insp1 idle", "insp2 idle",
         "buffer11", "buffer12", "buffer13", "buffer22", "buffer33"]
 delete_file_contents(metrics_filename) # reset it
@@ -129,9 +129,9 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
     insp1 = Inspector1(buffers=[buffer11, buffer12, buffer13])
     insp2 = Inspector2(buffers=[buffer22, buffer33])
 
-    w1 = Workstation(1, [buffer11], "data-rv/ws1.dat")
-    w2 = Workstation(2, [buffer12, buffer22], "data-rv/ws2.dat")
-    w3 = Workstation(3, [buffer13, buffer33], "data-rv/ws3.dat")
+    w1 = Workstation(1, [buffer11], "data/exp-rv/ws1.dat")
+    w2 = Workstation(2, [buffer12, buffer22], "data/exp-rv/ws2.dat")
+    w3 = Workstation(3, [buffer13, buffer33], "data/exp-rv/ws3.dat")
 
     workstations = [w1, w2, w3]
 
@@ -222,4 +222,4 @@ for rep in range(1, 1+NUM_OF_REPLICATIONS):
     for buffer in all_buffers:
         row.append(buffer.running_capacity/num_of_events)
 
-    write_to_csv("quantities-data/metrics.csv", row)
+    write_to_csv("data/quantities-data/metrics.csv", row)

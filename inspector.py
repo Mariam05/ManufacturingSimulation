@@ -48,7 +48,7 @@ class Inspector():
 class Inspector1(Inspector):
     def __init__(self, buffers: List[Buffer]):
         Inspector.__init__(self,1, buffers)
-        self.__c1Filename = "data-rv/servinsp1.dat"
+        self.__c1Filename = "data/exp-rv/servinsp1.dat"
         self.__c1Generator = (float(row.rstrip()) for row in open(self.__c1Filename)) # a generator to read the service times
 
     def get_next_service_time(self):
@@ -70,15 +70,15 @@ class Inspector1(Inspector):
             return
         if (clock >= INIT_PHASE):
             self.processing_time.append(insp_time)
-        # write_to_csv("quantities-data/insp1.csv",[insp_time, clock, clock+insp_time])
+        # write_to_csv("data/quantities-data/insp1.csv",[insp_time, clock, clock+insp_time])
         return (insp_time + clock, arrival, None, 1, self.id)
 
 
 class Inspector2(Inspector):
     def __init__(self, buffers: List[Buffer]):
         Inspector.__init__(self,2, buffers)
-        self.__c2Filename = "data-rv/servinsp22.dat"
-        self.__c3Filename = "data-rv/servinsp23.dat"
+        self.__c2Filename = "data/exp-rv/servinsp22.dat"
+        self.__c3Filename = "data/exp-rv/servinsp23.dat"
         self.__c2Generator = (float(row.rstrip()) for row in open(self.__c2Filename))
         self.__c3Generator = (float(row.rstrip()) for row in open(self.__c3Filename))
 
@@ -115,6 +115,6 @@ class Inspector2(Inspector):
             return
         if (clock >= INIT_PHASE):
             self.processing_time.append(insp_time)
-        # write_to_csv("quantities-data/insp2.csv",[insp_time, clock, clock+insp_time])
+        # write_to_csv("data/quantities-data/insp2.csv",[insp_time, clock, clock+insp_time])
 
         return (insp_time + clock, arrival, None, 1, self.id)
